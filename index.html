@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogpost</title>
+    <script src="./ckeditor_fileupload/ckeditor/ckeditor.js" type="text/javascript" ></script>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="heading-container"><h1>Add Blog</h1></div>
+  <div class="main-area">
+    <div class="left-pane">
+      <div class="text-and-button-container">
+        <div class="text-area-container">          
+          <textarea  id="Blog" placeholder="Type Your Blog Here"></textarea>
+        </div>
+        
+        <div class="button-container">
+          <button class="button" onclick="setBlog()">Post Blog</button>
+          <button class="button" onclick="getBlog()">Show Blog</button>
+        </div>
+      </div>
+      
+    </div>
+    <div class="right-pane">
+      <p id="showBlog"></p>
+    </div>
+  </div>
+    
+
+    <script>
+        
+                var getBlog
+                var setBlog
+        </script>
+        <script type="module">
+          import {
+            createWalletClient,
+            custom,
+            getContract,
+          } from "https://esm.sh/viem";
+          import { sepolia } from "https://esm.sh/viem/chains";
+
+          const walletClient = createWalletClient({
+                    chain: sepolia,
+                    transport: custom(window.ethereum),
+                  });
+  
+
+          const accounts = await walletClient.requestAddresses();
+  
+
+          const [address] = accounts;
+
+          const BlogContractAddress = "0x490f1BE93522E2aa46c316a397930864d2f9614B";
+          const BlogContractABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_Blog",
+				"type": "string"
+			}
+		],
+		"name": "setBlog",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getBlog",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+          const BlogContractInstance = getContract({
+            address: BlogContractAddress,
+            abi: BlogContractABI,
+            client: walletClient,
+          });
+  
+
+          getBlog= async function() {
+
+            const Blog = await BlogContractInstance.read.getBlog();
+            document.getElementById("showBlog").innerText = `Your Blog: ${Blog}`;
+          }
+  
+          setBlog= async function() {
+            const Blog = document.getElementById("Blog").value;
+
+            await BlogContractInstance.write.setBlog([Blog],{
+              account:address
+            });
+      }
+  
+  </script>
+
+
+</body>
+</html>
+
